@@ -49,8 +49,12 @@
 
     /* Header / Brand */
     .brand{
-      display:flex; align-items:center; gap:14px;
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
       margin-bottom:18px;
+    }
+    .brand-left{
+      display:flex; align-items:center; gap:14px;
+      min-width:0;
     }
     .brand-logo{
       width:44px;height:44px;border-radius:10px;
@@ -59,10 +63,25 @@
       color:white;font-weight:800;font-size:20px;
       box-shadow: var(--shadow);
       overflow:hidden;
+      flex:0 0 auto;
     }
     .brand-logo img{ width:44px;height:44px;object-fit:cover; display:block; }
-    .brand h1{ font-size:22px; margin:0; }
-    .brand .muted{ color:var(--muted); font-size:13px; margin-top:2px; }
+    .brand-title{ display:flex; flex-direction:column; min-width:0; }
+    .brand-title h1{ font-size:22px; margin:0; line-height:1.1; }
+    .brand .muted{ color:var(--muted); font-size:13px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* Powered by chip on the right */
+    .powered{
+      display:flex; align-items:center; gap:10px;
+      color:var(--muted); font-size:12px;
+    }
+    .powered .logo-chip{
+      width:28px;height:28px;border-radius:8px; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      background:#ffffff10; border:1px solid var(--border);
+    }
+    .powered .logo-chip img{ width:100%;height:100%;object-fit:cover; display:block; }
+    .powered .by{ opacity:.9; }
 
     /* Card */
     .card{
@@ -139,16 +158,14 @@
 
     .muted{ color:var(--muted) }
 
-    /* Code section */
     pre{
       margin:0; padding:14px; border-radius:12px;
       background:#0b1020; color:#e6edf3; overflow:auto;
     }
 
-    /* Print styles */
     @media print{
       body{ background:white }
-      .toolbar, .brand .muted, .helper, .footer, .hide-on-print{ display:none !important }
+      .toolbar, .brand .muted, .helper, .footer, .hide-on-print, .powered{ display:none !important }
       .container{ padding:0 }
       .card{ border:none; box-shadow:none }
       .card-header{ border-bottom:2px solid var(--border); }
@@ -161,7 +178,6 @@
       .brand{ margin-bottom:8px }
     }
 
-    /* Small helper */
     .helper{
       margin:12px 0 0; font-size:12px; color:var(--muted);
       display:flex; align-items:center; gap:8px;
@@ -181,13 +197,23 @@
   <div class="container">
     <!-- Brand -->
     <div class="brand">
-      <div class="brand-logo" id="brandLogo" aria-hidden="true">
-        <!-- If LOGO_URL loads, we'll render <img>. Otherwise show initials badge -->
-        <span id="brandInitials">IW</span>
+      <div class="brand-left">
+        <div class="brand-logo" id="brandLogo" aria-hidden="true">
+          <!-- If clinic logo loads, we'll render <img>. Otherwise show initials -->
+          <span id="brandInitials">HE</span>
+        </div>
+        <div class="brand-title">
+          <h1 id="clinicName">HEAT</h1>
+          <!-- NEW: powered by line -->
+          <div class="muted"><span class="by">Powered by iNeuralWorks</span></div>
+        </div>
       </div>
-      <div>
-        <h1 id="clinicName">HEAT</h1>
-        <div class="muted">Secure patient summary</div>
+      <!-- NEW: company logo chip on the right -->
+      <div class="powered" id="poweredBrand">
+        <span class="by">iNeuralWorks</span>
+        <div class="logo-chip" id="companyLogoChip" aria-hidden="true">
+          <img id="companyLogoImg" alt="iNeuralWorks logo" />
+        </div>
       </div>
     </div>
 
@@ -289,38 +315,55 @@
        ======================== */
     const EDGE_URL = "https://luahdckywarcjklyrccj.functions.supabase.co/get-patient-by-qr";
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YWhkY2t5d2FyY2prbHlyY2NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTY1NzAsImV4cCI6MjA4Nzk3MjU3MH0.cvM1OqO21RIlHO-WB-FH2hbAQ58xAHtrQZWQBCMBxcM";
-    const CLINIC_NAME = "HEAT";            // shown in header & footer
-    // Use RAW GitHub URL for images, not "blob" pages
-    const LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/about_us/main/Ineuralworks%20logo.png";
-    const BRAND_INITIALS = "IW"; // used when no logo
 
-    // Fields that are considered sensitive/technical and are hidden by default
+    // Branding
+    const CLINIC_NAME = "HEAT";                  // main client brand
+    const CLINIC_INITIALS = "HE";                // shown if clinic logo fails
+    // If you ever add a dedicated HEAT logo, set CLINIC_LOGO_URL here:
+    const CLINIC_LOGO_URL = "";                  // keep empty to use initials for HEAT
+
+    // Company branding (iNeuralWorks)
+    // Use RAW GitHub URL, not the /blob/ URL
+    const COMPANY_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/about_us/main/Ineuralworks%20logo.png";
+    const COMPANY_NAME = "iNeuralWorks";
+
     const TECH_FIELDS = ["id", "created_at"];
     /* ======================== */
 
-    // Branding init
+    // Header text
     document.getElementById("clinicName").textContent = CLINIC_NAME;
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    (function initBranding(){
+    // Load clinic logo (left). If not available, keep initials.
+    (function initClinicBranding(){
       const container = document.getElementById("brandLogo");
       const initials = document.getElementById("brandInitials");
-      initials.textContent = BRAND_INITIALS;
+      initials.textContent = CLINIC_INITIALS || "CL";
 
-      if (!LOGO_URL) return; // keep initials
+      if (!CLINIC_LOGO_URL) return;
       const img = new Image();
       img.width = 44; img.height = 44;
       img.alt = `${CLINIC_NAME} logo`;
       img.decoding = "async";
       img.loading = "eager";
       img.referrerPolicy = "no-referrer";
-      img.src = LOGO_URL;
-      img.addEventListener("load", () => {
-        container.replaceChildren(img);
-      });
-      img.addEventListener("error", () => {
-        // fall back to initials if the logo fails
-        container.replaceChildren(initials);
+      img.src = CLINIC_LOGO_URL;
+      img.addEventListener("load", () => container.replaceChildren(img));
+      img.addEventListener("error", () => container.replaceChildren(initials));
+    })();
+
+    // Load company logo (right chip)
+    (function initCompanyBranding(){
+      const chipImg = document.getElementById("companyLogoImg");
+      chipImg.alt = `${COMPANY_NAME} logo`;
+      chipImg.referrerPolicy = "no-referrer";
+      chipImg.decoding = "async";
+      chipImg.loading = "eager";
+      chipImg.src = COMPANY_LOGO_URL;
+      chipImg.addEventListener("error", () => {
+        // If it fails, collapse the chip gracefully and keep the text
+        const chip = document.getElementById("companyLogoChip");
+        chip.style.display = "none";
       });
     })();
 
@@ -394,7 +437,6 @@
     }
 
     function extractPatientPayload(json){
-      // Handle common wrappers and arrays
       if (!json) return null;
       if (Array.isArray(json)) return json[0] || null;
       if (json.patient) return json.patient;
@@ -404,7 +446,6 @@
     }
 
     function renderPatient(p){
-      // Defensive mapping
       const first = p.first_name || p.given_name || p.first || p.name?.first || p.firstname || "";
       const last  = p.last_name  || p.family_name || p.last  || p.name?.last  || p.lastname  || "";
       $("firstName").textContent = first || "—";
@@ -420,14 +461,20 @@
       $("patientId").textContent = p.id ?? p.record_id ?? "—";
       $("createdAt").textContent = fmtDateTime(p.created_at || p.createdAt || p.inserted_at);
 
-      // Emergency / Alerts synthesis
+      // --- Emergency / Alerts content (NOW includes emergency_info) ---
       const parts = [];
+
+      // Preferred single-string field
+      if (p.emergency_info) parts.push(String(p.emergency_info).trim());
+
+      // Common additional sources
       if (Array.isArray(p.alerts) && p.alerts.length) parts.push("Alerts: " + p.alerts.join(", "));
       if (Array.isArray(p.allergies) && p.allergies.length) parts.push("Allergies: " + p.allergies.join(", "));
-      if (p.emergency) parts.push(String(p.emergency));
+      if (p.emergency && !p.emergency_info) parts.push(String(p.emergency)); // legacy field
       if (p.risk_flags) parts.push("Risk Flags: " + (Array.isArray(p.risk_flags) ? p.risk_flags.join(", ") : String(p.risk_flags)));
-      if (!parts.length) parts.push("—");
-      $("emergencyInfo").textContent = parts.join(" • ");
+
+      $("emergencyInfo").textContent = parts.length ? parts.join(" • ") : "—";
+      // --- end emergency block ---
 
       // Status badge
       setStatusBadge(p);
@@ -461,7 +508,7 @@
           }
         }
       } catch (e) {
-        // continue to POST fallback
+        // silently fall through to POST
       }
 
       // Fallback to POST
@@ -487,7 +534,6 @@
       loadingEl.style.display = "none";
       gridEl.style.display = "none";
       errorEl.style.display = "block";
-      // Ensure we don't insert unsafe HTML from external sources
       errorEl.innerHTML = htmlMsg;
     }
 
@@ -503,7 +549,7 @@
       }
 
       try {
-        const { json, via } = await callEdge(user_id, token);
+        const { json } = await callEdge(user_id, token);
         const payload = extractPatientPayload(json);
 
         if (!payload || (typeof payload === "object" && !Object.keys(payload).length)) {
