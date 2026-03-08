@@ -7,11 +7,11 @@
   <meta name="color-scheme" content="light dark" />
   <style>
     :root{
-      --brand:#2563eb;
-      --brand-ink:#0b1220;
-      --bg:#f8fafc;
-      --card:#ffffff;
-      --muted:#6b7280;
+      --brand:#2563eb;          /* primary brand color */
+      --brand-ink:#0b1220;      /* dark text */
+      --bg:#f8fafc;             /* background */
+      --card:#ffffff;           /* card background */
+      --muted:#6b7280;          /* secondary text */
       --ok:#16a34a;
       --warn:#b45309;
       --danger:#b91c1c;
@@ -41,24 +41,40 @@
       background:linear-gradient(180deg,var(--bg),#ffffff00 60%);
       color:var(--brand-ink);
     }
-    .container{ max-width:960px; margin:0 auto; padding:24px 16px 64px; }
+    .container{
+      max-width:960px;
+      margin:0 auto;
+      padding:24px 16px 64px;
+    }
 
     /* Header / Brand */
-    .brand{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
-    .brand-left{ display:flex; align-items:center; gap:14px; min-width:0; }
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      margin-bottom:18px;
+    }
+    .brand-left{
+      display:flex; align-items:center; gap:14px;
+      min-width:0;
+    }
     .brand-logo{
       width:44px;height:44px;border-radius:10px;
       background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb);
       display:flex;align-items:center;justify-content:center;
       color:white;font-weight:800;font-size:20px;
-      box-shadow: var(--shadow); overflow:hidden; flex:0 0 auto;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      flex:0 0 auto;
     }
     .brand-logo img{ width:44px;height:44px;object-fit:cover; display:block; }
     .brand-title{ display:flex; flex-direction:column; min-width:0; }
     .brand-title h1{ font-size:22px; margin:0; line-height:1.1; }
     .brand .muted{ color:var(--muted); font-size:13px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    .powered{ display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px; }
+    /* Powered by chip on the right */
+    .powered{
+      display:flex; align-items:center; gap:10px;
+      color:var(--muted); font-size:12px;
+    }
     .powered .logo-chip{
       width:28px;height:28px;border-radius:8px; overflow:hidden;
       display:flex; align-items:center; justify-content:center;
@@ -68,15 +84,29 @@
     .powered .by{ opacity:.9; }
 
     /* Card */
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
     .card-header{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:16px 18px; border-bottom:1px solid var(--border);
       background:linear-gradient(0deg,#ffffff10,#ffffff00);
     }
-    .title{ display:flex; gap:10px; align-items:center; font-weight:700; font-size:18px; }
-    .badge{ font-size:12px; color:#fff; background:var(--brand); border-radius:10px; padding:4px 10px; }
-    .toolbar{ display:flex; gap:10px; flex-wrap:wrap; }
+    .title{
+      display:flex; gap:10px; align-items:center;
+      font-weight:700; font-size:18px;
+    }
+    .badge{
+      font-size:12px; color:#fff; background:var(--brand);
+      border-radius:10px; padding:4px 10px;
+    }
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
     .btn{
       appearance:none; border:1px solid var(--border);
       background:#fff0; color:var(--brand-ink);
@@ -90,22 +120,48 @@
     .btn .dot{ width:8px; height:8px; border-radius:999px; background:var(--ok) }
 
     .content{ padding:18px; }
-    .grid{ display:grid; grid-template-columns:1fr; gap:14px; }
-    @media (min-width:720px){ .grid{ grid-template-columns: 1.2fr .8fr; } }
+    .grid{
+      display:grid; grid-template-columns:1fr; gap:14px;
+    }
+    @media (min-width:720px){
+      .grid{ grid-template-columns: 1.2fr .8fr; }
+    }
 
-    .section{ border:1px dashed var(--border); border-radius:12px; padding:14px 14px 10px; }
-    .section h3{ margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
-    .row{ display:grid; grid-template-columns:160px 1fr; gap:10px; padding:8px 2px; border-bottom:1px dashed var(--border); }
+    .section{
+      border:1px dashed var(--border);
+      border-radius:12px;
+      padding:14px 14px 10px;
+    }
+    .section h3{
+      margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);
+    }
+    .row{
+      display:grid; grid-template-columns:160px 1fr; gap:10px;
+      padding:8px 2px; border-bottom:1px dashed var(--border);
+    }
     .row:last-child{ border-bottom:none }
     .label{ color:var(--muted); font-size:13px }
     .value{ font-weight:600; word-break:break-word; }
 
-    .emergency{ background:linear-gradient(180deg,#fef3c780,#fff0); border-color:#f59e0b40; }
-    .emergency .titleline{ display:flex; align-items:center; gap:8px; font-weight:700; color:#92400e; }
+    .emergency{
+      background:linear-gradient(180deg,#fef3c780,#fff0);
+      border-color:#f59e0b40;
+    }
+    .emergency .titleline{
+      display:flex; align-items:center; gap:8px; font-weight:700; color:#92400e;
+    }
 
-    .error-card{ background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; padding:14px; border-radius:12px; margin-top:10px; }
+    .error-card{
+      background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca;
+      padding:14px; border-radius:12px; margin-top:10px;
+    }
+
     .muted{ color:var(--muted) }
-    pre{ margin:0; padding:14px; border-radius:12px; background:#0b1020; color:#e6edf3; overflow:auto; }
+
+    pre{
+      margin:0; padding:14px; border-radius:12px;
+      background:#0b1020; color:#e6edf3; overflow:auto;
+    }
 
     @media print{
       body{ background:white }
@@ -122,9 +178,19 @@
       .brand{ margin-bottom:8px }
     }
 
-    .helper{ margin:12px 0 0; font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; }
-    .toggle{ display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); }
-    .footer{ margin-top:18px; color:var(--muted); font-size:12px; text-align:center; }
+    .helper{
+      margin:12px 0 0; font-size:12px; color:var(--muted);
+      display:flex; align-items:center; gap:8px;
+    }
+
+    .toggle{
+      display:inline-flex; align-items:center; gap:8px; font-size:13px;
+      color:var(--muted);
+    }
+
+    .footer{
+      margin-top:18px; color:var(--muted); font-size:12px; text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -133,13 +199,16 @@
     <div class="brand">
       <div class="brand-left">
         <div class="brand-logo" id="brandLogo" aria-hidden="true">
+          <!-- If clinic logo loads, we'll render <img>. Otherwise show initials -->
           <span id="brandInitials">HE</span>
         </div>
         <div class="brand-title">
           <h1 id="clinicName">HEAT</h1>
+          <!-- NEW: powered by line -->
           <div class="muted"><span class="by">Powered by iNeuralWorks</span></div>
         </div>
       </div>
+      <!-- NEW: company logo chip on the right -->
       <div class="powered" id="poweredBrand">
         <span class="by">iNeuralWorks</span>
         <div class="logo-chip" id="companyLogoChip" aria-hidden="true">
@@ -180,13 +249,32 @@
           <div class="section">
             <h3>Demographics</h3>
 
-            <div class="row"><div class="label">First name</div><div class="value" id="firstName">—</div></div>
-            <div class="row"><div class="label">Last name</div><div class="value" id="lastName">—</div></div>
-            <div class="row"><div class="label">Date of birth</div><div class="value" id="dob">—</div></div>
-            <div class="row"><div class="label">Patient #</div><div class="value" id="patientNumber">—</div></div>
+            <div class="row">
+              <div class="label">First name</div>
+              <div class="value" id="firstName">—</div>
+            </div>
+            <div class="row">
+              <div class="label">Last name</div>
+              <div class="value" id="lastName">—</div>
+            </div>
+            <div class="row">
+              <div class="label">Date of birth</div>
+              <div class="value" id="dob">—</div>
+            </div>
+            <div class="row">
+              <div class="label">Patient #</div>
+              <div class="value" id="patientNumber">—</div>
+            </div>
 
-            <div class="row tech" style="display:none"><div class="label">Record ID</div><div class="value" id="patientId">—</div></div>
-            <div class="row tech" style="display:none"><div class="label">Created at</div><div class="value" id="createdAt">—</div></div>
+            <!-- Technical fields (hidden by default) -->
+            <div class="row tech" style="display:none">
+              <div class="label">Record ID</div>
+              <div class="value" id="patientId">—</div>
+            </div>
+            <div class="row tech" style="display:none">
+              <div class="label">Created at</div>
+              <div class="value" id="createdAt">—</div>
+            </div>
           </div>
 
           <!-- Right: Emergency / Alerts -->
@@ -207,10 +295,12 @@
           Tip: Toggle “Show technical fields” to reveal internal identifiers when needed.
         </div>
 
+        <!-- Raw JSON (collapsed by default) -->
         <details class="hide-on-print" id="rawToggle" style="margin-top:12px">
           <summary class="muted">Show raw JSON</summary>
           <pre id="rawJson">{}</pre>
         </details>
+
       </div>
     </div>
 
@@ -218,48 +308,6 @@
       © <span id="year"></span> HEAT • For authorized use only
     </div>
   </div>
-
-  <!-- Verify (Authentication) Modal -->
-  <div id="verifyModal" aria-hidden="true" style="display:none">
-    <div id="verifyBackdrop" class="vm-backdrop"></div>
-    <div class="vm-dialog" role="dialog" aria-modal="true" aria-labelledby="vmTitle">
-      <h2 id="vmTitle" class="vm-title">Complete authentication</h2>
-      <p class="vm-desc">To continue, complete authentication for this request.</p>
-      <form id="verifyForm">
-        <label class="vm-label" for="verifyInput">Authentication code</label>
-        <input id="verifyInput" name="verifyInput" class="vm-input" type="text" autocomplete="off" required />
-        <div class="vm-actions">
-          <button type="submit" class="btn primary">Continue</button>
-          <button type="button" id="verifyCancel" class="btn">Cancel</button>
-        </div>
-        <div id="verifyMsg" class="vm-msg" role="status" aria-live="polite"></div>
-      </form>
-    </div>
-  </div>
-
-  <style>
-    /* Modal styles */
-    #verifyModal .vm-backdrop{
-      position:fixed; inset:0; background:rgba(2,6,23,.45); backdrop-filter: blur(2px); z-index:9998;
-    }
-    #verifyModal .vm-dialog{
-      position:fixed; z-index:9999; inset:0; margin:auto; width:min(92vw, 420px);
-      background:var(--card); color:var(--brand-ink); border:1px solid var(--border);
-      border-radius:14px; box-shadow:var(--shadow); padding:18px;
-      display:flex; flex-direction:column; gap:10px; top:18vh;
-    }
-    .vm-title{ margin:0; font-size:20px; }
-    .vm-desc{ margin:0; color:var(--muted); font-size:14px; }
-    .vm-label{ display:block; font-size:13px; color:var(--muted); margin-top:8px; }
-    .vm-input{
-      width:100%; margin-top:6px; padding:10px 12px; border-radius:10px;
-      border:1px solid var(--border); background:var(--card); color:var(--brand-ink);
-      outline:none; box-shadow:none;
-    }
-    .vm-input:focus{ border-color:var(--brand); box-shadow:0 0 0 4px var(--ring) }
-    .vm-actions{ display:flex; gap:10px; margin-top:12px }
-    .vm-msg{ margin-top:6px; font-size:12px; color:var(--muted) }
-  </style>
 
   <script>
     /* ========================
@@ -269,23 +317,29 @@
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YWhkY2t5d2FyY2prbHlyY2NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTY1NzAsImV4cCI6MjA4Nzk3MjU3MH0.cvM1OqO21RIlHO-WB-FH2hbAQ58xAHtrQZWQBCMBxcM";
 
     // Branding
-    const CLINIC_NAME = "HEAT";
-    const CLINIC_INITIALS = "HE";
-    const CLINIC_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/client_demos/main/HEAT%20demo%20logo.png";
+    const CLINIC_NAME = "HEAT";                  // main client brand
+    const CLINIC_INITIALS = "HE";                // shown if clinic logo fails
+    //Add a dedicated HEAT logo, set CLINIC_LOGO_URL:
+    const CLINIC_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/client_demos/main/HEAT%20demo%20logo.png";                  // keep empty to use initials for HEAT
 
+    // Company branding (iNeuralWorks)
+    // Use RAW GitHub URL, not the /blob/ URL
     const COMPANY_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/about_us/main/Ineuralworks%20logo.png";
     const COMPANY_NAME = "iNeuralWorks";
 
     const TECH_FIELDS = ["id", "created_at"];
     /* ======================== */
 
+    // Header text
     document.getElementById("clinicName").textContent = CLINIC_NAME;
     document.getElementById("year").textContent = new Date().getFullYear();
 
+    // Load clinic logo (left). If not available, keep initials.
     (function initClinicBranding(){
       const container = document.getElementById("brandLogo");
       const initials = document.getElementById("brandInitials");
       initials.textContent = CLINIC_INITIALS || "CL";
+
       if (!CLINIC_LOGO_URL) return;
       const img = new Image();
       img.width = 44; img.height = 44;
@@ -298,6 +352,7 @@
       img.addEventListener("error", () => container.replaceChildren(initials));
     })();
 
+    // Load company logo (right chip)
     (function initCompanyBranding(){
       const chipImg = document.getElementById("companyLogoImg");
       chipImg.alt = `${COMPANY_NAME} logo`;
@@ -306,12 +361,13 @@
       chipImg.loading = "eager";
       chipImg.src = COMPANY_LOGO_URL;
       chipImg.addEventListener("error", () => {
+        // If it fails, collapse the chip gracefully and keep the text
         const chip = document.getElementById("companyLogoChip");
         chip.style.display = "none";
       });
     })();
 
-    // Formatters
+    // Utility formatters
     function fmtDate(d){
       if (!d) return "—";
       try {
@@ -341,13 +397,17 @@
     const patientNameEl = $("patientName");
     const statusBadgeEl = $("statusBadge");
 
+    // Show/hide technical rows
     toggleTechEl.addEventListener("change", ()=>{
       for (const el of document.querySelectorAll(".tech")) {
         el.style.display = toggleTechEl.checked ? "" : "none";
       }
     });
 
+    // Print / PDF
     $("printBtn").addEventListener("click", ()=>window.print());
+
+    // Copy link
     $("copyLinkBtn").addEventListener("click", async ()=>{
       try {
         await navigator.clipboard.writeText(location.href);
@@ -364,10 +424,14 @@
         (p?.active === false ? "Inactive" : (p?.active === true ? "Active" : "")) ||
         (p?.is_active === false ? "Inactive" : (p?.is_active === true ? "Active" : "")) ||
         "Active";
+
       const lower = String(text).toLowerCase();
       let bg = "var(--ok)";
-      if (lower.includes("inactive") || lower.includes("deceased") || lower.includes("dead") || lower.includes("blocked")) bg = "var(--danger)";
-      else if (lower.includes("pending") || lower.includes("hold")) bg = "var(--warn)";
+      if (lower.includes("inactive") || lower.includes("deceased") || lower.includes("dead") || lower.includes("blocked")) {
+        bg = "var(--danger)";
+      } else if (lower.includes("pending") || lower.includes("hold")) {
+        bg = "var(--warn)";
+      }
       statusBadgeEl.textContent = text;
       statusBadgeEl.style.background = bg;
     }
@@ -397,16 +461,25 @@
       $("patientId").textContent = p.id ?? p.record_id ?? "—";
       $("createdAt").textContent = fmtDateTime(p.created_at || p.createdAt || p.inserted_at);
 
+      // --- Emergency / Alerts content (NOW includes emergency_info) ---
       const parts = [];
+
+      // Preferred single-string field
       if (p.emergency_info) parts.push(String(p.emergency_info).trim());
+
+      // Common additional sources
       if (Array.isArray(p.alerts) && p.alerts.length) parts.push("Alerts: " + p.alerts.join(", "));
       if (Array.isArray(p.allergies) && p.allergies.length) parts.push("Allergies: " + p.allergies.join(", "));
-      if (p.emergency && !p.emergency_info) parts.push(String(p.emergency));
+      if (p.emergency && !p.emergency_info) parts.push(String(p.emergency)); // legacy field
       if (p.risk_flags) parts.push("Risk Flags: " + (Array.isArray(p.risk_flags) ? p.risk_flags.join(", ") : String(p.risk_flags)));
-      $("emergencyInfo").textContent = parts.length ? parts.join(" • ") : "—";
 
+      $("emergencyInfo").textContent = parts.length ? parts.join(" • ") : "—";
+      // --- end emergency block ---
+
+      // Status badge
       setStatusBadge(p);
 
+      // Raw JSON
       rawJsonEl.textContent = JSON.stringify(p, null, 2);
       $("footnote").style.display = "";
       gridEl.style.display = "grid";
@@ -414,21 +487,18 @@
       errorEl.style.display = "none";
     }
 
-    async function callEdge_withBothParams(user_id, tokenValue){
-      // Always send BOTH token and token_code to satisfy different handlers
+    async function callEdge(user_id, token){
       const baseHeaders = {
         "Authorization": `Bearer ${ANON_KEY}`,
         "apikey": ANON_KEY
       };
 
-      // ---- GET first
+      // Try GET first
       try {
         const url = new URL(EDGE_URL);
         url.searchParams.set("user_id", user_id);
-        url.searchParams.set("token", tokenValue);
-        url.searchParams.set("token_code", tokenValue);
+        url.searchParams.set("token", token);
         url.searchParams.set("mode", "json");
-        console.debug("[HEAT] GET", url.toString());
         const resp = await fetch(url.toString(), { method: "GET", headers: baseHeaders, cache: "no-store" });
         if (resp.ok) {
           const ct = (resp.headers.get("content-type") || "").toLowerCase();
@@ -438,20 +508,18 @@
           }
         }
       } catch (e) {
-        console.warn("[HEAT] GET failed, will try POST", e);
+        // silently fall through to POST
       }
 
-      // ---- POST fallback
-      const body = { user_id, token: tokenValue, token_code: tokenValue, mode: "json" };
-      console.debug("[HEAT] POST", EDGE_URL, body);
+      // Fallback to POST
       const resp = await fetch(EDGE_URL, {
         method: "POST",
         headers: { ...baseHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ user_id, token, mode: "json" })
       });
       if (!resp.ok) {
         const text = await resp.text().catch(()=> "");
-        throw new Error(`Edge function error: ${resp.status} — ${text || resp.statusText}`);
+        throw new Error(`Edge function error: ${resp.status} ${resp.statusText}${text ? " — " + text : ""}`);
       }
       const ct = (resp.headers.get("content-type") || "").toLowerCase();
       if (!ct.includes("application/json")) {
@@ -469,85 +537,19 @@
       errorEl.innerHTML = htmlMsg;
     }
 
-    // ---- Verify gate (generic wording) ----
-    function openVerifyModal(expectedUserId) {
-      return new Promise((resolve) => {
-        const modal = document.getElementById("verifyModal");
-        const input = document.getElementById("verifyInput");
-        const form  = document.getElementById("verifyForm");
-        const cancelBtn = document.getElementById("verifyCancel");
-        const msg = document.getElementById("verifyMsg");
-
-        function show() {
-          modal.style.display = "";
-          modal.setAttribute("aria-hidden", "false");
-          setTimeout(()=> input.focus(), 0);
-        }
-        function hide() {
-          modal.style.display = "none";
-          modal.setAttribute("aria-hidden", "true");
-          form.reset();
-          msg.textContent = "";
-        }
-
-        form.addEventListener("submit", onSubmit);
-        cancelBtn.addEventListener("click", onCancel);
-        document.getElementById("verifyBackdrop").addEventListener("click", onCancel);
-
-        const clean = (s)=> (s||"").trim();
-        const norm  = (s)=> clean(s).toLowerCase();
-
-        function onSubmit(e){
-          e.preventDefault();
-          const entered = input.value;
-          if (!entered) { msg.textContent = "Please complete authentication to continue."; return; }
-
-          if (norm(entered) === norm(expectedUserId)) {
-            teardown(); hide(); resolve(true);
-          } else {
-            msg.textContent = "Authentication unsuccessful.";
-            teardown(); hide(); resolve(false);
-          }
-        }
-
-        function onCancel(){ teardown(); hide(); resolve(false); }
-
-        function teardown(){
-          form.removeEventListener("submit", onSubmit);
-          cancelBtn.removeEventListener("click", onCancel);
-          document.getElementById("verifyBackdrop").removeEventListener("click", onCancel);
-        }
-
-        show();
-      });
-    }
-
-    // ---- Guarded fetch flow ----
+    // Fetch patient
     (async function(){
-      // Re-parse params as late as possible
-      const params = new URLSearchParams(window.location.search);
-      const rawUserId = params.get("user_id");
-      const rawToken  = params.get("token") || params.get("token_code");
+      const params = new URLSearchParams(location.search);
+      const user_id = params.get("user_id");
+      const token = params.get("token") || params.get("token_code");
 
-      if (!rawUserId || !rawToken) {
+      if (!user_id || !token) {
         showError("<strong>Missing parameters</strong><br/>Please include <code>?user_id=…&amp;token=…</code> in the URL.");
         return;
       }
 
-      const user_id = String(rawUserId).trim();
-      const tokenVal = String(rawToken).trim();
-
-      // Prompt; proceed only if entered value matches the user_id param
-      const ok = await openVerifyModal(user_id);
-      if (!ok) {
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("footnote").style.display = "none";
-        return;
-      }
-
       try {
-        const { json, via } = await callEdge_withBothParams(user_id, tokenVal);
-        console.debug("[HEAT] Edge via:", via);
+        const { json } = await callEdge(user_id, token);
         const payload = extractPatientPayload(json);
 
         if (!payload || (typeof payload === "object" && !Object.keys(payload).length)) {
