@@ -204,11 +204,11 @@
         </div>
         <div class="brand-title">
           <h1 id="clinicName">HEAT</h1>
-          <!-- NEW: powered by line -->
+          <!-- powered by line -->
           <div class="muted"><span class="by">Powered by iNeuralWorks</span></div>
         </div>
       </div>
-      <!-- NEW: company logo chip on the right -->
+      <!-- company logo chip on the right -->
       <div class="powered" id="poweredBrand">
         <span class="by">iNeuralWorks</span>
         <div class="logo-chip" id="companyLogoChip" aria-hidden="true">
@@ -309,6 +309,48 @@
     </div>
   </div>
 
+  <!-- Verify (Authentication) Modal -->
+  <div id="verifyModal" aria-hidden="true" style="display:none">
+    <div id="verifyBackdrop" class="vm-backdrop"></div>
+    <div class="vm-dialog" role="dialog" aria-modal="true" aria-labelledby="vmTitle">
+      <h2 id="vmTitle" class="vm-title">Complete authentication</h2>
+      <p class="vm-desc">To continue, complete authentication for this request.</p>
+      <form id="verifyForm">
+        <label class="vm-label" for="verifyInput">Authentication code</label>
+        <input id="verifyInput" name="verifyInput" class="vm-input" type="text" autocomplete="off" required />
+        <div class="vm-actions">
+          <button type="submit" class="btn primary">Continue</button>
+          <button type="button" id="verifyCancel" class="btn">Cancel</button>
+        </div>
+        <div id="verifyMsg" class="vm-msg" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    /* Minimal modal styles (inherits your theme variables) */
+    #verifyModal .vm-backdrop{
+      position:fixed; inset:0; background:rgba(2,6,23,.45); backdrop-filter: blur(2px); z-index:9998;
+    }
+    #verifyModal .vm-dialog{
+      position:fixed; z-index:9999; inset:0; margin:auto; width:min(92vw, 420px);
+      background:var(--card); color:var(--brand-ink); border:1px solid var(--border);
+      border-radius:14px; box-shadow:var(--shadow); padding:18px;
+      display:flex; flex-direction:column; gap:10px; top:18vh;
+    }
+    .vm-title{ margin:0; font-size:20px; }
+    .vm-desc{ margin:0; color:var(--muted); font-size:14px; }
+    .vm-label{ display:block; font-size:13px; color:var(--muted); margin-top:8px; }
+    .vm-input{
+      width:100%; margin-top:6px; padding:10px 12px; border-radius:10px;
+      border:1px solid var(--border); background:var(--card); color:var(--brand-ink);
+      outline:none; box-shadow:none;
+    }
+    .vm-input:focus{ border-color:var(--brand); box-shadow:0 0 0 4px var(--ring) }
+    .vm-actions{ display:flex; gap:10px; margin-top:12px }
+    .vm-msg{ margin-top:6px; font-size:12px; color:var(--muted) }
+  </style>
+
   <script>
     /* ========================
        CONFIG — customize here
@@ -319,11 +361,10 @@
     // Branding
     const CLINIC_NAME = "HEAT";                  // main client brand
     const CLINIC_INITIALS = "HE";                // shown if clinic logo fails
-    //Add a dedicated HEAT logo, set CLINIC_LOGO_URL:
-    const CLINIC_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/client_demos/main/HEAT%20demo%20logo.png";                  // keep empty to use initials for HEAT
+    // Add a dedicated HEAT logo, set CLINIC_LOGO_URL (raw URL):
+    const CLINIC_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/client_demos/main/HEAT%20demo%20logo.png";
 
     // Company branding (iNeuralWorks)
-    // Use RAW GitHub URL, not the /blob/ URL
     const COMPANY_LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/about_us/main/Ineuralworks%20logo.png";
     const COMPANY_NAME = "iNeuralWorks";
 
@@ -361,7 +402,6 @@
       chipImg.loading = "eager";
       chipImg.src = COMPANY_LOGO_URL;
       chipImg.addEventListener("error", () => {
-        // If it fails, collapse the chip gracefully and keep the text
         const chip = document.getElementById("companyLogoChip");
         chip.style.display = "none";
       });
@@ -461,25 +501,17 @@
       $("patientId").textContent = p.id ?? p.record_id ?? "—";
       $("createdAt").textContent = fmtDateTime(p.created_at || p.createdAt || p.inserted_at);
 
-      // --- Emergency / Alerts content (NOW includes emergency_info) ---
+      // Emergency / Alerts content (includes emergency_info)
       const parts = [];
-
-      // Preferred single-string field
       if (p.emergency_info) parts.push(String(p.emergency_info).trim());
-
-      // Common additional sources
       if (Array.isArray(p.alerts) && p.alerts.length) parts.push("Alerts: " + p.alerts.join(", "));
       if (Array.isArray(p.allergies) && p.allergies.length) parts.push("Allergies: " + p.allergies.join(", "));
-      if (p.emergency && !p.emergency_info) parts.push(String(p.emergency)); // legacy field
+      if (p.emergency && !p.emergency_info) parts.push(String(p.emergency));
       if (p.risk_flags) parts.push("Risk Flags: " + (Array.isArray(p.risk_flags) ? p.risk_flags.join(", ") : String(p.risk_flags)));
-
       $("emergencyInfo").textContent = parts.length ? parts.join(" • ") : "—";
-      // --- end emergency block ---
 
-      // Status badge
       setStatusBadge(p);
 
-      // Raw JSON
       rawJsonEl.textContent = JSON.stringify(p, null, 2);
       $("footnote").style.display = "";
       gridEl.style.display = "grid";
@@ -508,7 +540,7 @@
           }
         }
       } catch (e) {
-        // silently fall through to POST
+        // fall through to POST
       }
 
       // Fallback to POST
@@ -537,7 +569,63 @@
       errorEl.innerHTML = htmlMsg;
     }
 
-    // Fetch patient
+    // ---- Verify gate: prompt for user_id using generic authentication wording ----
+    function openVerifyModal(expectedUserId) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById("verifyModal");
+        const input = document.getElementById("verifyInput");
+        const form  = document.getElementById("verifyForm");
+        const cancelBtn = document.getElementById("verifyCancel");
+        const msg = document.getElementById("verifyMsg");
+
+        function show() {
+          modal.style.display = "";
+          modal.setAttribute("aria-hidden", "false");
+          setTimeout(()=> input.focus(), 0);
+        }
+        function hide() {
+          modal.style.display = "none";
+          modal.setAttribute("aria-hidden", "true");
+          form.reset();
+          msg.textContent = "";
+        }
+
+        form.addEventListener("submit", onSubmit);
+        cancelBtn.addEventListener("click", onCancel);
+        document.getElementById("verifyBackdrop").addEventListener("click", onCancel);
+
+        function clean(s){ return (s||"").trim(); }
+        function norm(s){ return clean(s).toLowerCase(); }
+
+        function onSubmit(e){
+          e.preventDefault();
+          const entered = input.value;
+          if (!entered) { msg.textContent = "Please complete authentication to continue."; return; }
+
+          if (norm(entered) === norm(expectedUserId)) {
+            teardown(); hide(); resolve(true);
+          } else {
+            // No match: do nothing (per requirement)
+            msg.textContent = "Authentication unsuccessful.";
+            teardown(); hide(); resolve(false);
+          }
+        }
+
+        function onCancel(){
+          teardown(); hide(); resolve(false);
+        }
+
+        function teardown(){
+          form.removeEventListener("submit", onSubmit);
+          cancelBtn.removeEventListener("click", onCancel);
+          document.getElementById("verifyBackdrop").removeEventListener("click", onCancel);
+        }
+
+        show();
+      });
+    }
+
+    // Fetch patient (guarded)
     (async function(){
       const params = new URLSearchParams(location.search);
       const user_id = params.get("user_id");
@@ -545,6 +633,15 @@
 
       if (!user_id || !token) {
         showError("<strong>Missing parameters</strong><br/>Please include <code>?user_id=…&amp;token=…</code> in the URL.");
+        return;
+      }
+
+      // Prompt; proceed only if entered value matches the user_id param
+      const ok = await openVerifyModal(user_id);
+      if (!ok) {
+        // Idle: hide spinner and stop quietly
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("footnote").style.display = "none";
         return;
       }
 
