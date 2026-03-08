@@ -182,8 +182,8 @@
     <!-- Brand -->
     <div class="brand">
       <div class="brand-logo" id="brandLogo" aria-hidden="true">
-        <!-- If you set LOGO_URL below, it will render as <img>. Otherwise show initials badge -->
-        <span id="brandInitials">OF</span>
+        <!-- If LOGO_URL loads, we'll render <img>. Otherwise show initials badge -->
+        <span id="brandInitials">IW</span>
       </div>
       <div>
         <h1 id="clinicName">HEAT</h1>
@@ -290,8 +290,9 @@
     const EDGE_URL = "https://luahdckywarcjklyrccj.functions.supabase.co/get-patient-by-qr";
     const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YWhkY2t5d2FyY2prbHlyY2NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzOTY1NzAsImV4cCI6MjA4Nzk3MjU3MH0.cvM1OqO21RIlHO-WB-FH2hbAQ58xAHtrQZWQBCMBxcM";
     const CLINIC_NAME = "HEAT";            // shown in header & footer
-    const LOGO_URL = "https://github.com/ineuralworks/about_us/blob/main/Ineuralworks%20logo.png"; 
-    const BRAND_INITIALS = "ON"; // used when no logo
+    // Use RAW GitHub URL for images, not "blob" pages
+    const LOGO_URL = "https://raw.githubusercontent.com/ineuralworks/about_us/main/Ineuralworks%20logo.png";
+    const BRAND_INITIALS = "IW"; // used when no logo
 
     // Fields that are considered sensitive/technical and are hidden by default
     const TECH_FIELDS = ["id", "created_at"];
@@ -300,18 +301,33 @@
     // Branding init
     document.getElementById("clinicName").textContent = CLINIC_NAME;
     document.getElementById("year").textContent = new Date().getFullYear();
-    if (LOGO_URL) {
+
+    (function initBranding(){
       const container = document.getElementById("brandLogo");
-      container.innerHTML = `<img src="${LOGO_URL}" alt="${CLINIC_NAME} logo" />`;
-    } else {
-      document.getElementById("brandInitials").textContent = BRAND_INITIALS;
-    }
+      const initials = document.getElementById("brandInitials");
+      initials.textContent = BRAND_INITIALS;
+
+      if (!LOGO_URL) return; // keep initials
+      const img = new Image();
+      img.width = 44; img.height = 44;
+      img.alt = `${CLINIC_NAME} logo`;
+      img.decoding = "async";
+      img.loading = "eager";
+      img.referrerPolicy = "no-referrer";
+      img.src = LOGO_URL;
+      img.addEventListener("load", () => {
+        container.replaceChildren(img);
+      });
+      img.addEventListener("error", () => {
+        // fall back to initials if the logo fails
+        container.replaceChildren(initials);
+      });
+    })();
 
     // Utility formatters
     function fmtDate(d){
       if (!d) return "—";
       try {
-        // Accept 'YYYY-MM-DD' or ISO string
         if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
           const [y,m,day] = d.split("-").map(Number);
           return new Date(y, m-1, day).toLocaleDateString(undefined, { year:"numeric", month:"short", day:"2-digit" });
@@ -359,6 +375,122 @@
       } catch {}
     });
 
+    function setStatusBadge(p){
+      let text =
+        p?.status ||
+        (p?.active === false ? "Inactive" : (p?.active === true ? "Active" : "")) ||
+        (p?.is_active === false ? "Inactive" : (p?.is_active === true ? "Active" : "")) ||
+        "Active";
+
+      const lower = String(text).toLowerCase();
+      let bg = "var(--ok)";
+      if (lower.includes("inactive") || lower.includes("deceased") || lower.includes("dead") || lower.includes("blocked")) {
+        bg = "var(--danger)";
+      } else if (lower.includes("pending") || lower.includes("hold")) {
+        bg = "var(--warn)";
+      }
+      statusBadgeEl.textContent = text;
+      statusBadgeEl.style.background = bg;
+    }
+
+    function extractPatientPayload(json){
+      // Handle common wrappers and arrays
+      if (!json) return null;
+      if (Array.isArray(json)) return json[0] || null;
+      if (json.patient) return json.patient;
+      if (json.data && !Array.isArray(json.data) && typeof json.data === "object") return json.data;
+      if (json.data && Array.isArray(json.data)) return json.data[0] || null;
+      return json;
+    }
+
+    function renderPatient(p){
+      // Defensive mapping
+      const first = p.first_name || p.given_name || p.first || p.name?.first || p.firstname || "";
+      const last  = p.last_name  || p.family_name || p.last  || p.name?.last  || p.lastname  || "";
+      $("firstName").textContent = first || "—";
+      $("lastName").textContent  = last || "—";
+      $("patientName").textContent = [first, last].filter(Boolean).join(" ") || "Patient";
+
+      const dob = p.date_of_birth || p.dob || p.birth_date || p.birthDate;
+      $("dob").textContent = fmtDate(dob);
+
+      const mrn = p.patient_number || p.mrn || p.chart_number || p.patientNo || p.patient_id || p.unique_id;
+      $("patientNumber").textContent = mrn || "—";
+
+      $("patientId").textContent = p.id ?? p.record_id ?? "—";
+      $("createdAt").textContent = fmtDateTime(p.created_at || p.createdAt || p.inserted_at);
+
+      // Emergency / Alerts synthesis
+      const parts = [];
+      if (Array.isArray(p.alerts) && p.alerts.length) parts.push("Alerts: " + p.alerts.join(", "));
+      if (Array.isArray(p.allergies) && p.allergies.length) parts.push("Allergies: " + p.allergies.join(", "));
+      if (p.emergency) parts.push(String(p.emergency));
+      if (p.risk_flags) parts.push("Risk Flags: " + (Array.isArray(p.risk_flags) ? p.risk_flags.join(", ") : String(p.risk_flags)));
+      if (!parts.length) parts.push("—");
+      $("emergencyInfo").textContent = parts.join(" • ");
+
+      // Status badge
+      setStatusBadge(p);
+
+      // Raw JSON
+      rawJsonEl.textContent = JSON.stringify(p, null, 2);
+      $("footnote").style.display = "";
+      gridEl.style.display = "grid";
+      loadingEl.style.display = "none";
+      errorEl.style.display = "none";
+    }
+
+    async function callEdge(user_id, token){
+      const baseHeaders = {
+        "Authorization": `Bearer ${ANON_KEY}`,
+        "apikey": ANON_KEY
+      };
+
+      // Try GET first
+      try {
+        const url = new URL(EDGE_URL);
+        url.searchParams.set("user_id", user_id);
+        url.searchParams.set("token", token);
+        url.searchParams.set("mode", "json");
+        const resp = await fetch(url.toString(), { method: "GET", headers: baseHeaders, cache: "no-store" });
+        if (resp.ok) {
+          const ct = (resp.headers.get("content-type") || "").toLowerCase();
+          if (ct.includes("application/json")) {
+            const json = await resp.json();
+            if (json && Object.keys(json).length) return { json, via: "GET" };
+          }
+        }
+      } catch (e) {
+        // continue to POST fallback
+      }
+
+      // Fallback to POST
+      const resp = await fetch(EDGE_URL, {
+        method: "POST",
+        headers: { ...baseHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id, token, mode: "json" })
+      });
+      if (!resp.ok) {
+        const text = await resp.text().catch(()=> "");
+        throw new Error(`Edge function error: ${resp.status} ${resp.statusText}${text ? " — " + text : ""}`);
+      }
+      const ct = (resp.headers.get("content-type") || "").toLowerCase();
+      if (!ct.includes("application/json")) {
+        const text = await resp.text().catch(()=> "");
+        throw new Error(`Non-JSON response from edge function${text ? ": " + text.slice(0,200) : ""}`);
+      }
+      const json = await resp.json();
+      return { json, via: "POST" };
+    }
+
+    function showError(htmlMsg){
+      loadingEl.style.display = "none";
+      gridEl.style.display = "none";
+      errorEl.style.display = "block";
+      // Ensure we don't insert unsafe HTML from external sources
+      errorEl.innerHTML = htmlMsg;
+    }
+
     // Fetch patient
     (async function(){
       const params = new URLSearchParams(location.search);
@@ -366,17 +498,27 @@
       const token = params.get("token") || params.get("token_code");
 
       if (!user_id || !token) {
-        loadingEl.style.display = "none";
-        errorEl.style.display = "block";
-        errorEl.innerHTML = "<strong>Missing parameters</strong><br/>Please include <code>?user_id=…&amp;token=…</code> in the URL.";
+        showError("<strong>Missing parameters</strong><br/>Please include <code>?user_id=…&amp;token=…</code> in the URL.");
         return;
       }
 
       try {
-        const resp = await fetch(`${EDGE_URL}?user_id=${encodeURIComponent(user_id)}&token=${encodeURIComponent(token)}&mode=json`, {
-          headers: {
-            "Authorization": `Bearer ${ANON_KEY}`,
-            "apikey": ANON_KEY,
-            "Content-Type": "application/json"
-          }
-        });
+        const { json, via } = await callEdge(user_id, token);
+        const payload = extractPatientPayload(json);
+
+        if (!payload || (typeof payload === "object" && !Object.keys(payload).length)) {
+          showError("<strong>No patient found</strong><br/>The edge function returned an empty result for the provided <code>user_id</code> / <code>token</code>.");
+          rawJsonEl.textContent = JSON.stringify(json, null, 2);
+          $("rawToggle").open = true;
+          return;
+        }
+
+        renderPatient(payload);
+      } catch (err) {
+        console.error(err);
+        showError(`<strong>Request failed</strong><br/>${(err && err.message) ? err.message : "Unable to load patient."}`);
+      }
+    })();
+  </script>
+</body>
+</html>
